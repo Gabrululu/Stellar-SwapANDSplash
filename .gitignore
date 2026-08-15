@@ -1,0 +1,20 @@
+# Rust / Soroban
+# Cargo.lock SÍ se versiona a propósito: fija versiones de
+# dependencias que ya sabemos que compilan (soroban-sdk resuelve
+# a versiones incompatibles entre sí si no hay lockfile).
+/contracts/target
+**/*.rs.bk
+**/test_snapshots/
+
+# Node / frontend
+node_modules
+frontend/dist
+frontend/.env
+frontend/tsconfig.tsbuildinfo
+.env
+*.local
+
+# Editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json

@@ -1,0 +1,16 @@
+{
+  "name": "stellar-swap-splash",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "pnpm --filter stellar-swap-splash-frontend dev",
+    "build": "pnpm --filter stellar-swap-splash-frontend build",
+    "deploy:registry": "bash scripts/deploy_registry.sh",
+    "deploy:testnet": "bash scripts/deploy_testnet.sh",
+    "initialize": "bash scripts/initialize.sh",
+    "test:contracts": "cd contracts && cargo test --workspace"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}

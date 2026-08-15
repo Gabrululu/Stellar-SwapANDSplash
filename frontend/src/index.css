@@ -1,0 +1,197 @@
+/* Tipografías de marca:
+   - Titulares: Anton (alternativa web de Schabo Condensed, que
+     es una fuente de pago sin distribución vía CDN — si cuentas
+     con la licencia de Schabo Condensed, agrégala como @font-face
+     y reemplaza el primer nombre en --font-headline).
+   - Subtítulos / intros: Lora (SemiBold Italic).
+   - Cuerpo de texto: Inter. */
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Lora:ital,wght@0,500;0,600;1,600&family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  color-scheme: dark;
+
+  /* Paleta primaria de marca */
+  --color-black: #0a0a0a;
+  --color-white: #ffffff;
+  --color-yellow: #ffc700;
+  --color-yellow-dark: #e0ac00;
+
+  /* Paleta secundaria / acentos */
+  --color-lilac: #b7ace8;
+  --color-teal: #00a7b5;
+  --color-warm-grey: #d6d2c4;
+  --color-navy: #002e5d;
+
+  /* Tokens semánticos */
+  --bg: var(--color-black);
+  --surface: #161616;
+  --surface-border: #2c2c2c;
+  --text: var(--color-white);
+  --text-muted: var(--color-warm-grey);
+  --accent: var(--color-yellow);
+  --accent-contrast: var(--color-black);
+  --info: var(--color-teal);
+  --highlight: var(--color-lilac);
+  --link: var(--color-navy);
+
+  --font-headline: "Anton", "Schabo Condensed", "Inter", sans-serif;
+  --font-subtitle: "Lora", serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+header h1 {
+  font-family: var(--font-headline);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 2.25rem;
+  color: var(--accent);
+  margin: 0 0 0.35rem;
+}
+
+header p {
+  font-family: var(--font-subtitle);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card h2 {
+  font-family: var(--font-headline);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.token-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.token-header .logo {
+  font-size: 2rem;
+}
+
+.tagline {
+  margin: 0;
+  font-family: var(--font-subtitle);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+input[type="number"],
+input[type="text"] {
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+button {
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-family: var(--font-body);
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+  transition: background-color 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--color-yellow-dark);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}
+
+.small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.error {
+  color: #ff6b6b;
+}
+
+.warn {
+  color: var(--color-yellow);
+  font-size: 0.9rem;
+}
+
+.token-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.token-list li {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.token-list li:hover {
+  border-color: var(--info);
+}
+
+.token-list li.selected {
+  border-color: var(--highlight);
+  background: color-mix(in srgb, var(--highlight) 16%, var(--surface));
+}
