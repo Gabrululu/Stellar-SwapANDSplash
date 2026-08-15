@@ -7,7 +7,7 @@ use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String};
 // Cambia estos valores por los de tu propio token antes de
 // desplegar. `INITIAL_SUPPLY` ya incluye los `TOKEN_DECIMALS`
 // decimales (ej. 1_000_000 tokens con 7 decimales = 1_000_000 * 10^7).
-pub const TOKEN_NAME: &str = "Splash Token";
+pub const TOKEN_NAME: &str = "Stellar en acción";
 pub const TOKEN_SYMBOL: &str = "SPLASH";
 pub const TOKEN_DECIMALS: u32 = 7;
 pub const INITIAL_SUPPLY: i128 = 1_000_000 * 10_000_000; // 1,000,000 SPLASH
@@ -143,9 +143,24 @@ impl SplashToken {
         from.require_auth();
         assert!(amount > 0, "el monto debe ser positivo");
 
-        // TODO(taller): reemplaza este panic por tu implementación.
-        let _ = (env, to);
-        panic!("transfer_with_burn: función pendiente de implementar");
+        let from_balance = Self::balance(env.clone(), from.clone());
+        assert!(from_balance >= amount, "saldo insuficiente");
+
+        let fee = amount * BURN_FEE_BPS / 10_000;
+        let amount_to_recipient = amount - fee;
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::Balance(from), &(from_balance - amount));
+        let to_balance = Self::balance(env.clone(), to.clone());
+        env.storage()
+            .persistent()
+            .set(&DataKey::Balance(to), &(to_balance + amount_to_recipient));
+
+        let supply = Self::total_supply(env.clone());
+        env.storage()
+            .instance()
+            .set(&DataKey::TotalSupply, &(supply - fee));
     }
 }
 

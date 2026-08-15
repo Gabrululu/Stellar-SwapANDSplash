@@ -11,6 +11,7 @@ use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String, Ve
 #[derive(Clone)]
 pub struct TokenInfo {
     pub contract_id: Address,
+    pub pool_id: Address,
     pub symbol: String,
     pub name: String,
     pub owner: Address,
@@ -37,10 +38,18 @@ impl TokenRegistry {
         env.storage().instance().set(&DataKey::Admin, &admin);
     }
 
-    /// Registra un token nuevo. Solo el `owner` firmante puede
-    /// registrar su propio contrato (evita que alguien más
+    /// Registra un token nuevo junto con el pool donde se puede
+    /// intercambiar (SplashToken/XLM). Solo el `owner` firmante
+    /// puede registrar su propio contrato (evita que alguien más
     /// registre tokens ajenos a su nombre).
-    pub fn register(env: Env, contract_id: Address, symbol: String, name: String, owner: Address) {
+    pub fn register(
+        env: Env,
+        contract_id: Address,
+        pool_id: Address,
+        symbol: String,
+        name: String,
+        owner: Address,
+    ) {
         owner.require_auth();
 
         let mut tokens = Self::list_tokens(env.clone());
@@ -51,6 +60,7 @@ impl TokenRegistry {
         }
         tokens.push_back(TokenInfo {
             contract_id,
+            pool_id,
             symbol,
             name,
             owner,

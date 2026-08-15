@@ -7,6 +7,7 @@ import type { WalletState } from "./lib/freighter";
 
 interface TokenInfo {
   contract_id: string;
+  pool_id: string;
   symbol: string;
   name: string;
   owner: string;

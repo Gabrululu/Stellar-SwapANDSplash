@@ -10,9 +10,11 @@ fn test_register_and_list() {
 
     let owner = Address::generate(&env);
     let token = Address::generate(&env);
+    let pool = Address::generate(&env);
 
     client.register(
         &token,
+        &pool,
         &String::from_str(&env, "SPLASH"),
         &String::from_str(&env, "Splash Token"),
         &owner,
@@ -21,6 +23,7 @@ fn test_register_and_list() {
     let tokens = client.list_tokens();
     assert_eq!(tokens.len(), 1);
     assert_eq!(tokens.get(0).unwrap().contract_id, token);
+    assert_eq!(tokens.get(0).unwrap().pool_id, pool);
 }
 
 #[test]
@@ -33,15 +36,18 @@ fn test_register_duplicate_panics() {
 
     let owner = Address::generate(&env);
     let token = Address::generate(&env);
+    let pool = Address::generate(&env);
 
     client.register(
         &token,
+        &pool,
         &String::from_str(&env, "SPLASH"),
         &String::from_str(&env, "Splash Token"),
         &owner,
     );
     client.register(
         &token,
+        &pool,
         &String::from_str(&env, "SPLASH"),
         &String::from_str(&env, "Splash Token"),
         &owner,
@@ -61,15 +67,18 @@ fn test_admin_unregisters_token() {
     let owner = Address::generate(&env);
     let old_token = Address::generate(&env);
     let new_token = Address::generate(&env);
+    let pool = Address::generate(&env);
 
     client.register(
         &old_token,
+        &pool,
         &String::from_str(&env, "SPLASH"),
         &String::from_str(&env, "Splash Token"),
         &owner,
     );
     client.register(
         &new_token,
+        &pool,
         &String::from_str(&env, "SPLASH"),
         &String::from_str(&env, "Splash Token"),
         &owner,
@@ -96,8 +105,10 @@ fn test_non_admin_cannot_unregister() {
 
     let owner = Address::generate(&env);
     let token = Address::generate(&env);
+    let pool = Address::generate(&env);
     client.register(
         &token,
+        &pool,
         &String::from_str(&env, "SPLASH"),
         &String::from_str(&env, "Splash Token"),
         &owner,

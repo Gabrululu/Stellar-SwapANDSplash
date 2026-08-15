@@ -97,7 +97,7 @@ Antes de empezar, es necesario solicitar a quien facilita el taller el `CONTRACT
    - Conectar la wallet y solicitar XLM de prueba con el botón de Friendbot.
    - Acuñar el token propio.
    - Registrarlo en el mini DEX compartido para que aparezca en el tablero de toda la sala.
-   - Elegir el token de algún otro participante en el tablero y realizar un swap.
+   - Elegir el token de algún otro participante en el tablero y realizar un swap: la operación se ejecuta contra **el pool de esa persona** (cada quien tiene su propio pool SplashToken/XLM), así que estás intercambiando XLM por su token directamente.
 
 ## Tests de los contratos
 

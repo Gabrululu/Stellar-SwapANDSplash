@@ -59,26 +59,22 @@ fn test_burn_reduces_supply() {
     assert_eq!(client.balance(&admin), INITIAL_SUPPLY - 1_000);
 }
 
-// Estos tests te sirven para validar tu implementación de la
-// función especial del taller. Descoméntalos y ajusta las
-// aserciones una vez completes `transfer_with_burn`.
-//
-// #[test]
-// fn test_transfer_with_burn_charges_fee() {
-//     let (env, client, admin) = setup();
-//     let alice = Address::generate(&env);
-//     client.transfer_with_burn(&admin, &alice, &1_000);
-//     let fee = 1_000 * BURN_FEE_BPS / 10_000;
-//     assert_eq!(client.balance(&alice), 1_000 - fee);
-//     assert_eq!(client.balance(&admin), INITIAL_SUPPLY - 1_000);
-//     assert_eq!(client.total_supply(), INITIAL_SUPPLY - fee);
-// }
-//
-// #[test]
-// #[should_panic(expected = "saldo insuficiente")]
-// fn test_transfer_with_burn_insufficient_balance_panics() {
-//     let (env, client, _admin) = setup();
-//     let alice = Address::generate(&env);
-//     let bob = Address::generate(&env);
-//     client.transfer_with_burn(&alice, &bob, &1);
-// }
+#[test]
+fn test_transfer_with_burn_charges_fee() {
+    let (env, client, admin) = setup();
+    let alice = Address::generate(&env);
+    client.transfer_with_burn(&admin, &alice, &1_000);
+    let fee = 1_000 * BURN_FEE_BPS / 10_000;
+    assert_eq!(client.balance(&alice), 1_000 - fee);
+    assert_eq!(client.balance(&admin), INITIAL_SUPPLY - 1_000);
+    assert_eq!(client.total_supply(), INITIAL_SUPPLY - fee);
+}
+
+#[test]
+#[should_panic(expected = "saldo insuficiente")]
+fn test_transfer_with_burn_insufficient_balance_panics() {
+    let (env, client, _admin) = setup();
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+    client.transfer_with_burn(&alice, &bob, &1);
+}

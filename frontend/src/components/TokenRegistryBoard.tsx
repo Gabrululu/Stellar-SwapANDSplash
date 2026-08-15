@@ -5,6 +5,7 @@ import type { WalletState } from "../lib/freighter";
 
 interface TokenInfo {
   contract_id: string;
+  pool_id: string;
   symbol: string;
   name: string;
   owner: string;
@@ -22,6 +23,7 @@ export function TokenRegistryBoard({ wallet, onSelect, selected }: Props) {
   const [busy, setBusy] = useState(false);
 
   const missingRegistry = !registryConfig.contractId;
+  const missingPool = !tokenConfig.swapPoolContractId;
 
   async function loadTokens() {
     if (missingRegistry) return;
@@ -52,6 +54,7 @@ export function TokenRegistryBoard({ wallet, onSelect, selected }: Props) {
         method: "register",
         args: [
           addressArg(tokenConfig.contractId),
+          addressArg(tokenConfig.swapPoolContractId),
           tokenConfig.symbol,
           tokenConfig.name,
           addressArg(wallet.address),
@@ -77,9 +80,15 @@ export function TokenRegistryBoard({ wallet, onSelect, selected }: Props) {
         </p>
       ) : (
         <>
-          <button onClick={handleRegister} disabled={busy || !tokenConfig.contractId}>
+          <button onClick={handleRegister} disabled={busy || !tokenConfig.contractId || missingPool}>
             {busy ? "Registrando…" : `Registrar ${tokenConfig.symbol}`}
           </button>
+          {missingPool && (
+            <p className="warn">
+              Falta <code>VITE_SWAP_POOL_CONTRACT_ID</code>. Despliega tu pool con{" "}
+              <code>pnpm run deploy:testnet</code> antes de registrar.
+            </p>
+          )}
           {status && <p>{status}</p>}
 
           <h3>Tokens de la sala</h3>

@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { tokenConfig } from "../config/tokenConfig";
 import { addressArg, invokeContract } from "../lib/contracts";
 import type { WalletState } from "../lib/freighter";
 
 interface TokenInfo {
   contract_id: string;
+  pool_id: string;
   symbol: string;
   name: string;
   owner: string;
@@ -21,14 +21,13 @@ export function SwapPanel({ wallet, selectedToken }: Props) {
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const missingPool = !tokenConfig.swapPoolContractId;
-
   async function handleSwap() {
+    if (!selectedToken) return;
     setStatus(null);
     setBusy(true);
     try {
       const out = await invokeContract({
-        contractId: tokenConfig.swapPoolContractId,
+        contractId: selectedToken.pool_id,
         method: "swap",
         args: [addressArg(wallet.address), BigInt(amountIn), 0n, buyA],
         sourceAddress: wallet.address,
@@ -44,14 +43,14 @@ export function SwapPanel({ wallet, selectedToken }: Props) {
   return (
     <div className="card">
       <h2>4. Intercambia en la sala</h2>
-      {!selectedToken && <p>Elige un token del tablero para intercambiar contra el tuyo.</p>}
-      {missingPool ? (
-        <p className="warn">
-          Falta <code>VITE_SWAP_POOL_CONTRACT_ID</code>. Despliega tu pool SplashToken/XLM con{" "}
-          <code>pnpm run deploy:testnet</code>.
-        </p>
+      {!selectedToken ? (
+        <p>Elige un token del tablero para intercambiar contra su pool.</p>
       ) : (
         <>
+          <p>
+            Vas a intercambiar contra el pool de <strong>{selectedToken.symbol}</strong>{" "}
+            <span className="mono small">({selectedToken.pool_id})</span>
+          </p>
           <label>
             Cantidad a intercambiar
             <input
@@ -63,7 +62,7 @@ export function SwapPanel({ wallet, selectedToken }: Props) {
           </label>
           <label>
             <input type="checkbox" checked={buyA} onChange={(e) => setBuyA(e.target.checked)} />
-            Comprar token A (desmarca para comprar token B)
+            Comprar {selectedToken.symbol} con XLM (desmarca para vender {selectedToken.symbol} por XLM)
           </label>
           <button onClick={handleSwap} disabled={busy}>
             {busy ? "Intercambiando…" : "Swap"}

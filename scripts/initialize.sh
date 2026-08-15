@@ -31,4 +31,14 @@ stellar contract invoke \
   --id "$POOL_ID" --source "$IDENTITY" --network "$NETWORK" \
   -- initialize --admin "$ADMIN_ADDRESS" --token_a "$TOKEN_ID" --token_b "$NATIVE_XLM_ID"
 
+echo "== Sembrando liquidez inicial del pool (10% del supply + 50 XLM) =="
+TOTAL_SUPPLY="$(stellar contract invoke \
+  --id "$TOKEN_ID" --source "$IDENTITY" --network "$NETWORK" \
+  -- total_supply | tr -d '"')"
+DEPOSIT_TOKEN_AMOUNT="$((TOTAL_SUPPLY / 10))"
+DEPOSIT_XLM_AMOUNT="500000000"
+stellar contract invoke \
+  --id "$POOL_ID" --source "$IDENTITY" --network "$NETWORK" \
+  -- deposit --from "$ADMIN_ADDRESS" --amount_a "$DEPOSIT_TOKEN_AMOUNT" --amount_b "$DEPOSIT_XLM_AMOUNT"
+
 echo "✅ Listo. Ya puedes mintear, registrar tu token y hacer swap desde el frontend."

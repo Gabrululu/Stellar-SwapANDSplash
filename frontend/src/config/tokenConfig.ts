@@ -16,7 +16,7 @@ export const tokenConfig = {
   symbol: "SPLASH",
 
   /** Debe coincidir con TOKEN_NAME en contracts/splash_token/src/lib.rs */
-  name: "Splash Token",
+  name: "Stellar en acción",
 
   /** Lema o descripción corta de tu token. */
   tagline: "El primer paso de mi token en Stellar 🚀",
