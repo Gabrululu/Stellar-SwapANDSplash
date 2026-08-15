@@ -143,24 +143,9 @@ impl SplashToken {
         from.require_auth();
         assert!(amount > 0, "el monto debe ser positivo");
 
-        let from_balance = Self::balance(env.clone(), from.clone());
-        assert!(from_balance >= amount, "saldo insuficiente");
-
-        let fee = amount * BURN_FEE_BPS / 10_000;
-        let amount_to_recipient = amount - fee;
-
-        env.storage()
-            .persistent()
-            .set(&DataKey::Balance(from), &(from_balance - amount));
-        let to_balance = Self::balance(env.clone(), to.clone());
-        env.storage()
-            .persistent()
-            .set(&DataKey::Balance(to), &(to_balance + amount_to_recipient));
-
-        let supply = Self::total_supply(env.clone());
-        env.storage()
-            .instance()
-            .set(&DataKey::TotalSupply, &(supply - fee));
+        // TODO(taller): reemplaza este panic por tu implementación.
+        let _ = (env, to);
+        panic!("transfer_with_burn: función pendiente de implementar");
     }
 }
 
