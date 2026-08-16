@@ -1,4 +1,4 @@
-# Stellar: Swap&Splash
+# Stellar: Swap & Splash
 
 Taller interactivo donde cada participante diseña, despliega y personaliza su propio token para intercambiarlo con la comunidad.
 
@@ -53,16 +53,72 @@ frontend/          # Vite + React + TS, conecta con Freighter
 
 ## Requisitos
 
-- [pnpm](https://pnpm.io/) (`corepack enable` o `npm i -g pnpm`)
-- [Rust](https://rustup.rs/) + target wasm: `rustup target add wasm32v1-none`
-- [Stellar CLI](https://developers.stellar.org/docs/tools/cli/install-cli): `cargo install --locked stellar-cli`
-- Extensión [Freighter](https://www.freighter.app/) en el navegador, configurada en red **Testnet**
+Necesitas: **git**, **Node.js** (18+) con **pnpm**, **Rust** con el target `wasm32v1-none`, la **Stellar CLI**, y la extensión de navegador **Freighter**. A continuación, cómo instalar cada uno según tu sistema operativo.
+
+> 🪟 **¿Usas Windows?** Se recomienda instalar [WSL2](https://learn.microsoft.com/es-es/windows/wsl/install) (Windows Subsystem for Linux) y ejecutar **todos** los comandos de este README dentro de tu distro WSL (ej. Ubuntu), no en PowerShell/CMD. La Stellar CLI y las herramientas de Rust no ofrecen soporte confiable en Windows nativo. Una vez dentro de WSL, sigue las instrucciones de "Linux" de abajo.
+
+<details>
+<summary><strong>Linux / WSL2 (Ubuntu/Debian)</strong></summary>
+
+```bash
+# git (normalmente ya viene instalado; si no):
+sudo apt update && sudo apt install -y git build-essential pkg-config libssl-dev
+
+# Node.js 18+ (via nvm, evita permisos raros de npm global)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+source ~/.bashrc
+nvm install --lts
+
+# pnpm
+corepack enable
+
+# Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+rustup target add wasm32v1-none
+
+# Stellar CLI (tarda varios minutos en compilar)
+cargo install --locked stellar-cli
+```
+</details>
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+```bash
+# Homebrew, si no lo tienes: https://brew.sh
+brew install git node
+
+# pnpm
+corepack enable
+
+# Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+rustup target add wasm32v1-none
+
+# Stellar CLI (tarda varios minutos en compilar)
+cargo install --locked stellar-cli
+```
+</details>
+
+Después de instalar, verifica que todo esté en el `PATH` con:
+```bash
+git --version && node --version && pnpm --version && rustc --version && stellar --version
+```
+Si algún comando "no se encuentra" tras instalarlo, cierra y vuelve a abrir la terminal (o corre `source ~/.bashrc` / `source ~/.zshrc`) para que tome el `PATH` actualizado.
+
+Por último, instala la extensión [Freighter](https://www.freighter.app/) en tu navegador (Chrome, Firefox o Brave) y, dentro de la extensión, cambia la red a **Testnet** (ícono de configuración → "Network").
 
 ## Cómo usar este repositorio
 
-Antes de empezar, es necesario solicitar a quien facilita el taller el `CONTRACT_ID` del **registro compartido** (`token_registry`) — se usa en el paso 5. No hace falta desplegarlo: eso lo despliega una sola vez quien facilita.
+Antes de empezar, es necesario tener el `CONTRACT_ID` del **registro compartido** (`token_registry`) — se usa en el paso 6. No hace falta desplegarlo, eso ya esta desplegado: [`CBLSOKKOQP4LJZUOEQKYJ2YR3RTCZK2GLFHZ7JLGQUCFIW4MNTNORP4F`](https://stellar.expert/explorer/testnet/contract/CBLSOKKOQP4LJZUOEQKYJ2YR3RTCZK2GLFHZ7JLGQUCFIW4MNTNORP4F)
 
-1. **Clonar este repositorio** y ubicarse en la carpeta del proyecto.
+1. **Clonar este repositorio** y ubicarse en la carpeta del proyecto:
+   ```bash
+   git clone https://github.com/Gabrululu/Stellar-SwapANDSplash
+   cd Stellar-SwapANDSplash
+   ```
 
 2. **Instalar las dependencias del frontend:**
    ```bash
@@ -81,19 +137,29 @@ Antes de empezar, es necesario solicitar a quien facilita el taller el `CONTRACT
    ```bash
    pnpm run initialize -- <alias-propio> <TOKEN_ID> <POOL_ID>
    ```
+   Estos comandos crearon una identidad **`<alias-propio>`** que es la administradora (`admin`) de tu `splash_token` — es una clave distinta a la que usa tu wallet en el navegador. Solo esa identidad puede llamar a `mint` (ver siguiente paso), así que antes de usar el frontend hay que llevarla a Freighter.
 
-5. **Commit 2 — configurar el frontend:**
+5. **Importar tu identidad admin en Freighter** (necesario para poder mintear desde el frontend más adelante):
+   ```bash
+   stellar keys show <alias-propio>
+   ```
+   Copia la clave secreta que imprime (empieza con `S...`). En Freighter: menú (⋮) → **"Add account"** → **"Import a Stellar secret key"** → pégala. Verifica que la red siga en **Testnet** y deja esa cuenta seleccionada como activa — será la wallet que conectes en el paso 8.
+
+   ⚠️ Esta clave es solo de **Testnet**, sin valor real, y es tuya: nunca la compartas ni la subas al repositorio. Cada participante genera y usa únicamente su propia identidad — nadie necesita la clave de nadie más.
+
+6. **Commit 2 — configurar el frontend:**
    ```bash
    cp frontend/.env.example frontend/.env
    ```
    En `frontend/.env`, completar `VITE_TOKEN_REGISTRY_CONTRACT_ID` con el valor entregado por quien facilita, y `VITE_SPLASH_TOKEN_CONTRACT_ID` / `VITE_SWAP_POOL_CONTRACT_ID` con los valores obtenidos en el paso anterior. Luego, en `frontend/src/config/tokenConfig.ts`, definir el logo (un emoji, una URL, o un archivo colocado en `frontend/public/`) y el lema del token.
 
-6. **Iniciar el frontend:**
+7. **Iniciar el frontend:**
    ```bash
    pnpm run dev
    ```
+   Abre la URL que imprime la terminal (normalmente `http://localhost:5173`).
 
-7. **En el navegador** (con Freighter instalado y configurado en Testnet):
+8. **En el navegador** (con Freighter instalado, en Testnet, y con la cuenta importada en el paso 5 seleccionada):
    - Conectar la wallet y solicitar XLM de prueba con el botón de Friendbot.
    - Acuñar el token propio.
    - Registrarlo en el mini DEX compartido para que aparezca en el tablero de toda la sala.
@@ -104,3 +170,13 @@ Antes de empezar, es necesario solicitar a quien facilita el taller el `CONTRACT
 ```bash
 pnpm run test:contracts
 ```
+
+## Solución de problemas comunes
+
+- **`❌ Transacción ... falló en la red` al presionar Mint**: casi siempre significa que la wallet conectada en Freighter no es la identidad admin de tu `splash_token` (la que corrió `initialize.sh`). Solo el admin puede mintear (`require_auth` en el contrato lo exige). Revisa el paso 5 — importa la clave secreta de tu `<alias-propio>` (`stellar keys show <alias-propio>`) en Freighter y conéctate con esa cuenta.
+- **`error: target 'wasm32v1-none' not found` o similar al compilar**: falta el target de Rust. Corre `rustup target add wasm32v1-none`.
+- **`stellar: command not found`** tras instalarlo: asegúrate de que `~/.cargo/bin` esté en tu `PATH` (`source "$HOME/.cargo/env"`) y abre una terminal nueva.
+- **`pnpm: command not found`**: corre `corepack enable` (viene con Node 16.9+); si sigue sin aparecer, `npm i -g pnpm`.
+- **Freighter no aparece / el frontend no detecta la wallet**: confirma que la extensión esté instalada, desbloqueada, y en red **Testnet** (no Mainnet ni Futurenet).
+- **`Falta VITE_SPLASH_TOKEN_CONTRACT_ID en tu .env`**: te faltó completar `frontend/.env` con los `CONTRACT_ID` del paso 4 (ver paso 6).
+- **En Windows, comandos que fallan de formas raras (paths, permisos, compilación de Rust)**: usa WSL2 en vez de PowerShell/CMD — ver la sección de Requisitos.
