@@ -29,10 +29,31 @@ Este taller es una introducción práctica a interactuar con **contratos intelig
 
 **¿Qué es una wallet y para qué sirve Freighter?** Una wallet guarda las claves que identifican una cuenta en la red y es la que firma las transacciones en nombre de la persona usuaria. [Freighter](https://www.freighter.app/) es una extensión de navegador que cumple ese rol: cuando el frontend necesita firmar algo (mintear, registrar, hacer swap), le pide la firma a Freighter en vez de manejar la clave privada directamente.
 
-Con esa base, el taller propone: cada asistente escribe y despliega su propio contrato de token (Commit 1), lo conecta a una interfaz web (Commit 2), lo publica en Testnet (Commit 3) y finalmente lo registra e intercambia con los tokens de las demás personas a través de un mini DEX compartido — todo interactuando en vivo con contratos reales en la blockchain.
+Con esa base, el taller propone: cada asistente escribe y personaliza su propio contrato de token, lo despliega en Testnet, lo conecta a una interfaz web y finalmente lo registra e intercambia con los tokens de las demás personas a través de un mini DEX compartido — todo interactuando en vivo con contratos reales en la blockchain.
+
+> 📘 **Antes de empezar**, si es tu primera vez en el ecosistema Stellar te recomendamos leer [skills.stellar.org](https://skills.stellar.org/) — una guía introductoria oficial, pensada para quienes recién llegan, que explica los conceptos base (cuentas, red, Soroban) con más calma de la que da este README.
+
+### Glosario rápido
+
+Si nunca tocaste Stellar, estos son los términos que vas a ver todo el taller:
+
+| Término | Qué es |
+|---|---|
+| **Testnet** | La red de pruebas de Stellar. Funciona igual que la red principal (Mainnet) pero el XLM que usa no tiene valor real — es donde vamos a trabajar todo el taller. |
+| **XLM (Lumen)** | La moneda nativa de Stellar. En Testnet se consigue gratis con Friendbot. |
+| **Soroban** | La plataforma de contratos inteligentes de Stellar (donde vive nuestro token). |
+| **Contrato inteligente** | Un programa que vive en la blockchain; en este taller, cada `splash_token` es uno. |
+| **CONTRACT_ID** | El "identificador" único de un contrato ya desplegado en la red (ej. `CBLSO...`). Lo vas a copiar y pegar varias veces. |
+| **Identidad / alias** | Un par de claves (pública + secreta) que representa una cuenta en la red, generado con la Stellar CLI. No es lo mismo que tu wallet del navegador. |
+| **Wallet** | Guarda tus claves y firma transacciones en tu nombre. En este taller la maneja la extensión Freighter. |
+| **Freighter** | Extensión de navegador que actúa como wallet: cuando el frontend necesita firmar algo, se lo pide a Freighter. |
+| **Deploy (desplegar)** | Publicar el contrato compilado en la red para que quede disponible con su propio CONTRACT_ID. |
+| **Mint (acuñar)** | Crear unidades nuevas del token y asignárselas a una cuenta. Solo puede hacerlo el `admin` del contrato. |
+| **Swap** | Intercambiar un token por otro a través de un pool de liquidez. |
 
 ### Recursos útiles
 
+- [skills.stellar.org](https://skills.stellar.org/) — guía introductoria oficial de Stellar, recomendada antes de empezar si eres nuevo/a en el ecosistema.
 - [stellar.org](https://stellar.org/) — sitio oficial de la red Stellar.
 - [developers.stellar.org](https://developers.stellar.org/) — documentación técnica de Stellar y Soroban.
 - [Stellar Laboratory](https://laboratory.stellar.org/) — herramienta oficial para construir y enviar transacciones a mano, explorar cuentas y consultar el estado de la red en Testnet.
@@ -53,7 +74,15 @@ frontend/          # Vite + React + TS, conecta con Freighter
 
 ## Requisitos
 
-Necesitas: **git**, **Node.js** (18+) con **pnpm**, **Rust** con el target `wasm32v1-none`, la **Stellar CLI**, y la extensión de navegador **Freighter**. A continuación, cómo instalar cada uno según tu sistema operativo.
+Necesitas instalar estas cinco herramientas. Si nunca las usaste, aquí va para qué sirve cada una:
+
+- **git** — para clonar (descargar) este repositorio.
+- **Node.js (18+) con pnpm** — para instalar y correr el frontend (la página web).
+- **Rust con el target `wasm32v1-none`** — para compilar el contrato de Rust a WebAssembly, el formato que Soroban ejecuta en la red.
+- **Stellar CLI** (`stellar`) — la herramienta de línea de comandos oficial para crear identidades, desplegar contratos e interactuar con la red Stellar.
+- **Freighter** — la wallet (extensión de navegador) que vas a usar para firmar transacciones desde el frontend.
+
+A continuación, cómo instalar cada una según tu sistema operativo.
 
 > 🪟 **¿Usas Windows?** Se recomienda instalar [WSL2](https://learn.microsoft.com/es-es/windows/wsl/install) (Windows Subsystem for Linux) y ejecutar **todos** los comandos de este README dentro de tu distro WSL (ej. Ubuntu), no en PowerShell/CMD. La Stellar CLI y las herramientas de Rust no ofrecen soporte confiable en Windows nativo. Una vez dentro de WSL, sigue las instrucciones de "Linux" de abajo.
 
@@ -112,58 +141,109 @@ Por último, instala la extensión [Freighter](https://www.freighter.app/) en tu
 
 ## Cómo usar este repositorio
 
-Antes de empezar, es necesario tener el `CONTRACT_ID` del **registro compartido** (`token_registry`) — se usa en el paso 6. No hace falta desplegarlo, eso ya esta desplegado: [`CBLSOKKOQP4LJZUOEQKYJ2YR3RTCZK2GLFHZ7JLGQUCFIW4MNTNORP4F`](https://stellar.expert/explorer/testnet/contract/CBLSOKKOQP4LJZUOEQKYJ2YR3RTCZK2GLFHZ7JLGQUCFIW4MNTNORP4F)
+Sigue estos 9 pasos en orden. Todos los comandos se corren desde la terminal, parados en la carpeta del proyecto (salvo que se indique lo contrario).
 
-1. **Clonar este repositorio** y ubicarse en la carpeta del proyecto:
-   ```bash
-   git clone https://github.com/Gabrululu/Stellar-SwapANDSplash
-   cd Stellar-SwapANDSplash
-   ```
+> Antes de empezar, es necesario tener el `CONTRACT_ID` del **registro compartido** (`token_registry`) — se usa en el paso 7. No hace falta desplegarlo, eso ya lo hizo quien facilita el taller: [`CBLSOKKOQP4LJZUOEQKYJ2YR3RTCZK2GLFHZ7JLGQUCFIW4MNTNORP4F`](https://stellar.expert/explorer/testnet/contract/CBLSOKKOQP4LJZUOEQKYJ2YR3RTCZK2GLFHZ7JLGQUCFIW4MNTNORP4F)
 
-2. **Instalar las dependencias del frontend:**
-   ```bash
-   pnpm install
-   ```
+### Paso 1 — Clonar este repositorio
 
-3. **Commit 1 — personalizar el contrato** en `contracts/splash_token/src/lib.rs`:
-   - Cambiar las constantes `TOKEN_NAME`, `TOKEN_SYMBOL`, `TOKEN_DECIMALS` e `INITIAL_SUPPLY` por las del token propio.
-   - Completar la función `transfer_with_burn` (una transferencia que cobra una comisión y la quema) siguiendo la guía incluida en sus comentarios. Ejecutar `pnpm run test:contracts` para comprobar que la implementación pasa los tests.
+```bash
+git clone https://github.com/Gabrululu/Stellar-SwapANDSplash
+cd Stellar-SwapANDSplash
+```
 
-4. **Commit 3 — compilar y desplegar el token:**
-   ```bash
-   pnpm run deploy:testnet -- <alias-propio>
-   ```
-   Este comando crea, si hace falta, una identidad de Testnet financiada con Friendbot y devuelve dos `CONTRACT_ID`: el de `splash_token` y el de `swap_pool`. Luego hay que inicializarlos (esto acuña el suministro inicial y crea el par SplashToken/XLM):
-   ```bash
-   pnpm run initialize -- <alias-propio> <TOKEN_ID> <POOL_ID>
-   ```
-   Estos comandos crearon una identidad **`<alias-propio>`** que es la administradora (`admin`) de tu `splash_token` — es una clave distinta a la que usa tu wallet en el navegador. Solo esa identidad puede llamar a `mint` (ver siguiente paso), así que antes de usar el frontend hay que llevarla a Freighter.
+### Paso 2 — Instalar las dependencias del frontend
 
-5. **Importar tu identidad admin en Freighter** (necesario para poder mintear desde el frontend más adelante):
-   ```bash
-   stellar keys show <alias-propio>
-   ```
-   Copia la clave secreta que imprime (empieza con `S...`). En Freighter: menú (⋮) → **"Add account"** → **"Import a Stellar secret key"** → pégala. Verifica que la red siga en **Testnet** y deja esa cuenta seleccionada como activa — será la wallet que conectes en el paso 8.
+```bash
+pnpm install
+```
 
-   ⚠️ Esta clave es solo de **Testnet**, sin valor real, y es tuya: nunca la compartas ni la subas al repositorio. Cada participante genera y usa únicamente su propia identidad — nadie necesita la clave de nadie más.
+### Paso 3 — Personalizar el contrato del token
 
-6. **Commit 2 — configurar el frontend:**
-   ```bash
-   cp frontend/.env.example frontend/.env
-   ```
-   En `frontend/.env`, completar `VITE_TOKEN_REGISTRY_CONTRACT_ID` con el valor entregado por quien facilita, y `VITE_SPLASH_TOKEN_CONTRACT_ID` / `VITE_SWAP_POOL_CONTRACT_ID` con los valores obtenidos en el paso anterior. Luego, en `frontend/src/config/tokenConfig.ts`, definir el logo (un emoji, una URL, o un archivo colocado en `frontend/public/`) y el lema del token.
+Editar `contracts/splash_token/src/lib.rs`:
+- Cambiar las constantes `TOKEN_NAME`, `TOKEN_SYMBOL`, `TOKEN_DECIMALS` e `INITIAL_SUPPLY` por las del token propio.
+- Completar la función `transfer_with_burn` (una transferencia que cobra una comisión y la quema) siguiendo la guía incluida en sus comentarios.
 
-7. **Iniciar el frontend:**
-   ```bash
-   pnpm run dev
-   ```
-   Abre la URL que imprime la terminal (normalmente `http://localhost:5173`).
+Comprobar que la implementación pasa los tests:
+```bash
+pnpm run test:contracts
+```
 
-8. **En el navegador** (con Freighter instalado, en Testnet, y con la cuenta importada en el paso 5 seleccionada):
-   - Conectar la wallet y solicitar XLM de prueba con el botón de Friendbot.
-   - Acuñar el token propio.
-   - Registrarlo en el mini DEX compartido para que aparezca en el tablero de toda la sala.
-   - Elegir el token de algún otro participante en el tablero y realizar un swap: la operación se ejecuta contra **el pool de esa persona** (cada quien tiene su propio pool SplashToken/XLM), así que estás intercambiando XLM por su token directamente.
+### Paso 4 — Crear tu identidad y fondearla en Testnet
+
+Una **identidad** es un par de claves (alias local → clave pública/secreta) que la Stellar CLI usa para firmar comandos como `deploy` o `invoke`. No es la misma cuenta que usará tu wallet del navegador (eso viene en el paso 6). Elige un alias propio (por ejemplo, tu nombre) y créalo:
+
+```bash
+stellar keys generate mi-alias
+```
+
+Luego, financia esa cuenta con XLM de prueba (sin esto no puedes pagar las comisiones de red):
+
+```bash
+stellar keys fund mi-alias
+```
+
+> 💡 En el futuro, puedes generar la clave y fondearla de un solo golpe agregando la bandera `--fund`: `stellar keys generate mi-alias --fund`.
+
+### Paso 5 — Compilar y desplegar el token
+
+```bash
+pnpm run deploy:testnet -- mi-alias
+```
+
+Este comando compila el contrato a WebAssembly y lo publica en Testnet. Si la identidad `mi-alias` ya existe (la creaste en el paso 4) la reutiliza; si no, la crea y financia automáticamente. Al terminar, imprime dos `CONTRACT_ID` — anótalos, los vas a necesitar en los pasos siguientes:
+
+- `splash_token` → tu token.
+- `swap_pool` → el pool de liquidez de tu token contra XLM.
+
+Con esos dos IDs, inicializa los contratos (esto acuña el suministro inicial y crea el par SplashToken/XLM):
+
+```bash
+pnpm run initialize -- mi-alias <TOKEN_ID> <POOL_ID>
+```
+
+reemplazando `<TOKEN_ID>` y `<POOL_ID>` por los valores que imprimió el comando anterior. Esta identidad (`mi-alias`) queda como la **administradora** (`admin`) de tu `splash_token` — solo ella puede llamar a `mint` (ver paso 6), así que antes de usar el frontend hay que llevarla a Freighter.
+
+### Paso 6 — Importar tu identidad admin en Freighter
+
+Necesario para poder mintear tu token desde el frontend más adelante. Primero, muestra la clave secreta de tu identidad:
+
+```bash
+stellar keys show mi-alias
+```
+
+Copia la clave secreta que imprime (empieza con `S...`). Luego, en Freighter: menú (⋮) → **"Add account"** → **"Import a Stellar secret key"** → pégala. Verifica que la red siga en **Testnet** y deja esa cuenta seleccionada como activa — será la wallet que conectes en el paso 9.
+
+⚠️ Esta clave es solo de **Testnet**, sin valor real, y es tuya: nunca la compartas ni la subas al repositorio. Cada participante genera y usa únicamente su propia identidad — nadie necesita la clave de nadie más.
+
+### Paso 7 — Configurar el frontend
+
+```bash
+cp frontend/.env.example frontend/.env
+```
+
+Editar `frontend/.env` y completar:
+- `VITE_TOKEN_REGISTRY_CONTRACT_ID` con el valor entregado por quien facilita el taller (ver nota al inicio de esta sección).
+- `VITE_SPLASH_TOKEN_CONTRACT_ID` y `VITE_SWAP_POOL_CONTRACT_ID` con los `CONTRACT_ID` que obtuviste en el paso 5.
+
+Luego, en `frontend/src/config/tokenConfig.ts`, definir el logo (un emoji, una URL, o un archivo colocado en `frontend/public/`) y el lema del token.
+
+### Paso 8 — Iniciar el frontend
+
+```bash
+pnpm run dev
+```
+
+Abre la URL que imprime la terminal (normalmente `http://localhost:5173`).
+
+### Paso 9 — Acuñar, registrar e intercambiar (en el navegador)
+
+Con Freighter instalado, en red **Testnet**, y con la cuenta importada en el paso 6 seleccionada como activa:
+
+1. Conectar la wallet en el frontend y solicitar XLM de prueba con el botón de Friendbot.
+2. Acuñar el token propio.
+3. Registrarlo en el mini DEX compartido para que aparezca en el tablero de toda la sala.
+4. Elegir el token de algún otro participante en el tablero y realizar un swap: la operación se ejecuta contra **el pool de esa persona** (cada quien tiene su propio pool SplashToken/XLM), así que estás intercambiando XLM por su token directamente.
 
 ## Tests de los contratos
 
@@ -173,10 +253,10 @@ pnpm run test:contracts
 
 ## Solución de problemas comunes
 
-- **`❌ Transacción ... falló en la red` al presionar Mint**: casi siempre significa que la wallet conectada en Freighter no es la identidad admin de tu `splash_token` (la que corrió `initialize.sh`). Solo el admin puede mintear (`require_auth` en el contrato lo exige). Revisa el paso 5 — importa la clave secreta de tu `<alias-propio>` (`stellar keys show <alias-propio>`) en Freighter y conéctate con esa cuenta.
+- **`❌ Transacción ... falló en la red` al presionar Mint**: casi siempre significa que la wallet conectada en Freighter no es la identidad admin de tu `splash_token` (la que corrió `initialize.sh` en el paso 5). Solo el admin puede mintear (`require_auth` en el contrato lo exige). Revisa el paso 6 — importa la clave secreta de tu identidad (`stellar keys show mi-alias`) en Freighter y conéctate con esa cuenta.
 - **`error: target 'wasm32v1-none' not found` o similar al compilar**: falta el target de Rust. Corre `rustup target add wasm32v1-none`.
 - **`stellar: command not found`** tras instalarlo: asegúrate de que `~/.cargo/bin` esté en tu `PATH` (`source "$HOME/.cargo/env"`) y abre una terminal nueva.
 - **`pnpm: command not found`**: corre `corepack enable` (viene con Node 16.9+); si sigue sin aparecer, `npm i -g pnpm`.
 - **Freighter no aparece / el frontend no detecta la wallet**: confirma que la extensión esté instalada, desbloqueada, y en red **Testnet** (no Mainnet ni Futurenet).
-- **`Falta VITE_SPLASH_TOKEN_CONTRACT_ID en tu .env`**: te faltó completar `frontend/.env` con los `CONTRACT_ID` del paso 4 (ver paso 6).
+- **`Falta VITE_SPLASH_TOKEN_CONTRACT_ID en tu .env`**: te faltó completar `frontend/.env` con los `CONTRACT_ID` del paso 5 (ver paso 7).
 - **En Windows, comandos que fallan de formas raras (paths, permisos, compilación de Rust)**: usa WSL2 en vez de PowerShell/CMD — ver la sección de Requisitos.
