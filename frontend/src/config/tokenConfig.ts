@@ -6,16 +6,16 @@
 // Stellar CLI y cuéntanos la historia de tu token.
 
 export const tokenConfig = {
-  /** CONTRACT_ID de tu splash_token en Testnet (Commit 2). */
-  contractId: import.meta.env.VITE_SPLASH_TOKEN_CONTRACT_ID ?? "",
+  /** CONTRACT_ID de tu token en Testnet (Commit 2). */
+  contractId: import.meta.env.VITE_TOKEN_CONTRACT_ID ?? "",
 
-  /** CONTRACT_ID del swap pool SplashToken/XLM que desplegaste. */
+  /** CONTRACT_ID del swap pool Token/XLM que desplegaste. */
   swapPoolContractId: import.meta.env.VITE_SWAP_POOL_CONTRACT_ID ?? "",
 
-  /** Debe coincidir con TOKEN_SYMBOL en contracts/splash_token/src/lib.rs */
+  /** Debe coincidir con TOKEN_SYMBOL en contracts/workshop_token/src/lib.rs */
   symbol: "SPLASH",
 
-  /** Debe coincidir con TOKEN_NAME en contracts/splash_token/src/lib.rs */
+  /** Debe coincidir con TOKEN_NAME en contracts/workshop_token/src/lib.rs */
   name: "Stellar en acción",
 
   /** Lema o descripción corta de tu token. */
@@ -38,3 +38,10 @@ export const tokenConfig = {
 export const registryConfig = {
   contractId: import.meta.env.VITE_TOKEN_REGISTRY_CONTRACT_ID ?? "",
 };
+
+/**
+ * SAC (Stellar Asset Contract) del XLM nativo en Testnet — mismo
+ * valor por defecto que usa `scripts/initialize.sh`. Todos los
+ * pools del taller lo usan como `token_b`.
+ */
+export const NATIVE_XLM_CONTRACT_ID = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";

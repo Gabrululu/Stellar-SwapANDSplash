@@ -20,7 +20,7 @@ export default function App() {
   return (
     <main className="app">
       <header>
-        <h1>Stellar: Swap&amp;Splash 🌊</h1>
+        <h1>Stellar: Swap &amp; Splash 🌊</h1>
         <p>Diseña, despliega y personaliza tu propio token en Stellar Testnet.</p>
       </header>
 

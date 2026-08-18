@@ -47,6 +47,17 @@ export function TokenRegistryBoard({ wallet, onSelect, selected }: Props) {
 
   async function handleRegister() {
     setStatus(null);
+
+    // Ya está en la lista cargada: evita pedir firma para nada, el
+    // contrato lo iba a rechazar con un panic ("este token ya esta
+    // registrado") que en Freighter solo se ve como un error críptico
+    // de WASM.
+    const yaRegistrado = tokens.some((t) => t.contract_id === tokenConfig.contractId);
+    if (yaRegistrado) {
+      setStatus("ℹ️ Este token ya está registrado en el mini DEX, no hace falta volver a registrarlo.");
+      return;
+    }
+
     setBusy(true);
     try {
       await invokeContract({
@@ -64,7 +75,15 @@ export function TokenRegistryBoard({ wallet, onSelect, selected }: Props) {
       setStatus("✅ Token registrado en el mini DEX");
       await loadTokens();
     } catch (err) {
-      setStatus(`❌ ${err instanceof Error ? err.message : String(err)}`);
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes("este token ya esta registrado") || message.includes("UnreachableCodeReached")) {
+        setStatus(
+          "ℹ️ Este token ya está registrado en el mini DEX (con este mismo CONTRACT_ID). Si cambiaste nombre o símbolo, vuelve a desplegar el contrato para obtener uno nuevo.",
+        );
+        await loadTokens();
+      } else {
+        setStatus(`❌ ${message}`);
+      }
     } finally {
       setBusy(false);
     }

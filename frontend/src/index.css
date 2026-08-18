@@ -195,3 +195,26 @@ button:disabled {
   border-color: var(--highlight);
   background: color-mix(in srgb, var(--highlight) 16%, var(--surface));
 }
+
+.swap-direction {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.swap-direction button {
+  flex: 1;
+  width: auto;
+  background: var(--bg);
+  color: var(--text-muted);
+  border: 1px solid var(--surface-border);
+}
+
+.swap-direction button:hover:not(:disabled) {
+  border-color: var(--info);
+}
+
+.swap-direction button.selected {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+}

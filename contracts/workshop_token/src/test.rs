@@ -1,11 +1,11 @@
 use super::*;
 use soroban_sdk::testutils::Address as _;
 
-fn setup() -> (Env, SplashTokenClient<'static>, Address) {
+fn setup() -> (Env, WorkshopTokenClient<'static>, Address) {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(SplashToken, ());
-    let client = SplashTokenClient::new(&env, &contract_id);
+    let contract_id = env.register(WorkshopToken, ());
+    let client = WorkshopTokenClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin);
     (env, client, admin)

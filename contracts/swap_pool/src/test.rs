@@ -1,10 +1,10 @@
 use super::*;
-use splash_token::{SplashToken, SplashTokenClient};
+use workshop_token::{WorkshopToken, WorkshopTokenClient};
 use soroban_sdk::testutils::Address as _;
 
 fn setup_token(env: &Env, admin: &Address) -> Address {
-    let id = env.register(SplashToken, ());
-    let client = SplashTokenClient::new(env, &id);
+    let id = env.register(WorkshopToken, ());
+    let client = WorkshopTokenClient::new(env, &id);
     client.initialize(admin);
     id
 }
@@ -17,8 +17,8 @@ fn test_deposit_and_swap() {
     let admin = Address::generate(&env);
     let token_a_id = setup_token(&env, &admin);
     let token_b_id = setup_token(&env, &admin);
-    let token_a = SplashTokenClient::new(&env, &token_a_id);
-    let token_b = SplashTokenClient::new(&env, &token_b_id);
+    let token_a = WorkshopTokenClient::new(&env, &token_a_id);
+    let token_b = WorkshopTokenClient::new(&env, &token_b_id);
 
     let pool_id = env.register(SwapPool, ());
     let pool = SwapPoolClient::new(&env, &pool_id);
@@ -46,7 +46,7 @@ fn test_swap_respects_min_out() {
     let admin = Address::generate(&env);
     let token_a_id = setup_token(&env, &admin);
     let token_b_id = setup_token(&env, &admin);
-    let token_a = SplashTokenClient::new(&env, &token_a_id);
+    let token_a = WorkshopTokenClient::new(&env, &token_a_id);
 
     let pool_id = env.register(SwapPool, ());
     let pool = SwapPoolClient::new(&env, &pool_id);

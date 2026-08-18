@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "splash_token",
+    "workshop_token",
     "token_registry",
     "swap_pool",
 ]

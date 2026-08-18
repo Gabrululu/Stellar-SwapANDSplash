@@ -23,7 +23,7 @@ Este taller es una introducción práctica a interactuar con **contratos intelig
 
 **¿Qué es Stellar?** Es una red blockchain pública ([stellar.org](https://stellar.org/)), diseñada originalmente para pagos rápidos y de bajo costo. Su moneda nativa es el **XLM (Lumen)**, que además de usarse como medio de pago sirve para cubrir las comisiones de red. Stellar cuenta con [Soroban](https://developers.stellar.org/docs/build/smart-contracts/overview), su plataforma de contratos inteligentes: programas escritos en Rust, compilados a WebAssembly, que se publican ("despliegan") en la red y luego cualquiera puede invocar sus funciones.
 
-**¿Qué es un contrato inteligente?** Es un programa que vive en la blockchain: su código y su estado (por ejemplo, cuántos tokens tiene cada dirección) quedan almacenados de forma pública y verificable por cualquiera. En este taller, cada token es un contrato inteligente propio, con reglas definidas en `contracts/splash_token/src/lib.rs`.
+**¿Qué es un contrato inteligente?** Es un programa que vive en la blockchain: su código y su estado (por ejemplo, cuántos tokens tiene cada dirección) quedan almacenados de forma pública y verificable por cualquiera. En este taller, cada token es un contrato inteligente propio, con reglas definidas en `contracts/workshop_token/src/lib.rs`.
 
 **¿Qué significa "interactuar" con un contrato?** Cada acción sobre un contrato (acuñar tokens, transferirlos, hacer un swap) es una **transacción**: se construye, se firma con una clave privada y se envía a la red. Una vez confirmada, queda registrada de forma permanente e inmodificable. Por eso todo el taller usa **Testnet**, la red de pruebas de Stellar: funciona igual que la red principal, pero con XLM sin valor real, pensado para practicar sin riesgo. El grifo [Friendbot](https://friendbot.stellar.org/) entrega XLM de prueba gratis a cualquier dirección de Testnet.
 
@@ -42,7 +42,7 @@ Si nunca tocaste Stellar, estos son los términos que vas a ver todo el taller:
 | **Testnet** | La red de pruebas de Stellar. Funciona igual que la red principal (Mainnet) pero el XLM que usa no tiene valor real — es donde vamos a trabajar todo el taller. |
 | **XLM (Lumen)** | La moneda nativa de Stellar. En Testnet se consigue gratis con Friendbot. |
 | **Soroban** | La plataforma de contratos inteligentes de Stellar (donde vive nuestro token). |
-| **Contrato inteligente** | Un programa que vive en la blockchain; en este taller, cada `splash_token` es uno. |
+| **Contrato inteligente** | Un programa que vive en la blockchain; en este taller, cada `workshop_token` es uno. |
 | **CONTRACT_ID** | El "identificador" único de un contrato ya desplegado en la red (ej. `CBLSO...`). Lo vas a copiar y pegar varias veces. |
 | **Identidad / alias** | Un par de claves (pública + secreta) que representa una cuenta en la red, generado con la Stellar CLI. No es lo mismo que tu wallet del navegador. |
 | **Wallet** | Guarda tus claves y firma transacciones en tu nombre. En este taller la maneja la extensión Freighter. |
@@ -50,7 +50,7 @@ Si nunca tocaste Stellar, estos son los términos que vas a ver todo el taller:
 | **Deploy (desplegar)** | Publicar el contrato compilado en la red para que quede disponible con su propio CONTRACT_ID. |
 | **Mint (acuñar)** | Crear unidades nuevas del token y asignárselas a una cuenta. Solo puede hacerlo el `admin` del contrato. |
 | **Swap** | Intercambiar un token por otro a través de un pool de liquidez. |
-| **Trustline** | Mecanismo de los **activos clásicos** de Stellar (no de Soroban): para poder tener un activo así en tu cuenta primero tienes que "confiar" en él, y eso bloquea una reserva mínima de XLM. Nuestro `splash_token` **no** usa trustlines — ver la sección [Ver tu token en Freighter](#ver-tu-token-en-freighter). |
+| **Trustline** | Mecanismo de los **activos clásicos** de Stellar (no de Soroban): para poder tener un activo así en tu cuenta primero tienes que "confiar" en él, y eso bloquea una reserva mínima de XLM. Nuestro `workshop_token` **no** usa trustlines — ver la sección [Ver tu token en Freighter](#ver-tu-token-en-freighter). |
 
 ### Recursos útiles
 
@@ -66,9 +66,9 @@ Si nunca tocaste Stellar, estos son los términos que vas a ver todo el taller:
 
 ```
 contracts/
-  splash_token/    # El token — se edita y se despliega
+  workshop_token/  # El token — se edita y se despliega
   token_registry/  # Registro compartido (lo despliega quien facilita)
-  swap_pool/       # Pool de liquidez x*y=k para el par SplashToken/XLM
+  swap_pool/       # Pool de liquidez x*y=k para el par Token/XLM
 scripts/           # deploy_registry.sh, deploy_testnet.sh, initialize.sh
 frontend/          # Vite + React + TS, conecta con Freighter
 ```
@@ -161,7 +161,7 @@ pnpm install
 
 ### Paso 3 — Personalizar el contrato del token
 
-Editar `contracts/splash_token/src/lib.rs`:
+Editar `contracts/workshop_token/src/lib.rs`:
 - Cambiar las constantes `TOKEN_NAME`, `TOKEN_SYMBOL`, `TOKEN_DECIMALS` e `INITIAL_SUPPLY` por las del token propio.
 - Completar la función `transfer_with_burn` (una transferencia que cobra una comisión y la quema) siguiendo la guía incluida en sus comentarios.
 
@@ -189,21 +189,21 @@ stellar keys fund mi-alias
 ### Paso 5 — Compilar y desplegar el token
 
 ```bash
-pnpm run deploy:testnet -- mi-alias
+pnpm run deploy:testnet mi-alias
 ```
 
 Este comando compila el contrato a WebAssembly y lo publica en Testnet. Si la identidad `mi-alias` ya existe (la creaste en el paso 4) la reutiliza; si no, la crea y financia automáticamente. Al terminar, imprime dos `CONTRACT_ID` — anótalos, los vas a necesitar en los pasos siguientes:
 
-- `splash_token` → tu token.
+- `workshop_token` → tu token.
 - `swap_pool` → el pool de liquidez de tu token contra XLM.
 
-Con esos dos IDs, inicializa los contratos (esto acuña el suministro inicial y crea el par SplashToken/XLM):
+Con esos dos IDs, inicializa los contratos (esto acuña el suministro inicial y crea el par Token/XLM):
 
 ```bash
-pnpm run initialize -- mi-alias <TOKEN_ID> <POOL_ID>
+pnpm run initialize mi-alias <TOKEN_ID> <POOL_ID>
 ```
 
-reemplazando `<TOKEN_ID>` y `<POOL_ID>` por los valores que imprimió el comando anterior. Esta identidad (`mi-alias`) queda como la **administradora** (`admin`) de tu `splash_token` — solo ella puede llamar a `mint` (ver paso 6), así que antes de usar el frontend hay que llevarla a Freighter.
+reemplazando `<TOKEN_ID>` y `<POOL_ID>` por los valores que imprimió el comando anterior. Esta identidad (`mi-alias`) queda como la **administradora** (`admin`) de tu `workshop_token` — solo ella puede llamar a `mint` (ver paso 6), así que antes de usar el frontend hay que llevarla a Freighter.
 
 ### Paso 6 — Importar tu identidad admin en Freighter
 
@@ -225,7 +225,7 @@ cp frontend/.env.example frontend/.env
 
 Editar `frontend/.env` y completar:
 - `VITE_TOKEN_REGISTRY_CONTRACT_ID` con el valor entregado por quien facilita el taller (ver nota al inicio de esta sección).
-- `VITE_SPLASH_TOKEN_CONTRACT_ID` y `VITE_SWAP_POOL_CONTRACT_ID` con los `CONTRACT_ID` que obtuviste en el paso 5.
+- `VITE_TOKEN_CONTRACT_ID` y `VITE_SWAP_POOL_CONTRACT_ID` con los `CONTRACT_ID` que obtuviste en el paso 5.
 
 Luego, en `frontend/src/config/tokenConfig.ts`, definir el logo (un emoji, una URL, o un archivo colocado en `frontend/public/`) y el lema del token.
 
@@ -244,7 +244,7 @@ Con Freighter instalado, en red **Testnet**, y con la cuenta importada en el pas
 1. Conectar la wallet en el frontend y solicitar XLM de prueba con el botón de Friendbot.
 2. Acuñar el token propio.
 3. Registrarlo en el mini DEX compartido para que aparezca en el tablero de toda la sala.
-4. Elegir el token de algún otro participante en el tablero y realizar un swap: la operación se ejecuta contra **el pool de esa persona** (cada quien tiene su propio pool SplashToken/XLM), así que estás intercambiando XLM por su token directamente.
+4. Elegir el token de algún otro participante en el tablero y realizar un swap: la operación se ejecuta contra **el pool de esa persona** (cada quien tiene su propio pool Token/XLM), así que estás intercambiando XLM por su token directamente.
 
 ## Ver tu token en Freighter
 
@@ -253,12 +253,12 @@ El frontend ya te muestra tu balance de SPLASH, pero si además quieres verlo di
 **¿Por qué no hay que pagar ninguna "cuota" para agregarlo?** En Stellar existen dos tipos de activos, con reglas distintas:
 
 - **Activos clásicos** (los emitidos con `código + cuenta emisora`, ej. la mayoría de stablecoins en la red): para poder tenerlos en tu cuenta primero necesitas abrir una **trustline** (`change_trust`). Mientras esa trustline exista, Stellar bloquea una **reserva mínima de ~0.5 XLM** en tu cuenta — esa es la "cuota" de la que probablemente escuchaste hablar en el ecosistema Stellar en general.
-- **Tokens Soroban** como nuestro `splash_token`: no son un activo clásico, son un contrato inteligente que implementa las funciones de un token (`balance`, `transfer`, etc.). Tu saldo vive en el *storage* del contrato, no en una trustline de tu cuenta. Por eso **no hace falta abrir trustline ni reservar XLM** para "admitirlo" — solo hay que decirle a Freighter que muestre ese contrato.
+- **Tokens Soroban** como nuestro `workshop_token`: no son un activo clásico, son un contrato inteligente que implementa las funciones de un token (`balance`, `transfer`, etc.). Tu saldo vive en el *storage* del contrato, no en una trustline de tu cuenta. Por eso **no hace falta abrir trustline ni reservar XLM** para "admitirlo" — solo hay que decirle a Freighter que muestre ese contrato.
 
 **Cómo agregarlo:**
 1. Abre Freighter y confirma que la red activa sea **Testnet**.
 2. Ve al listado de activos → botón de administrar/agregar activo (**"Manage assets" → "Add an asset"**, el nombre exacto puede variar un poco según la versión de la extensión).
-3. Busca la opción para agregarlo **manualmente por contrato** (en vez de buscar por código/emisor, que es el flujo de activos clásicos) y pega ahí el `CONTRACT_ID` de tu `splash_token` — el mismo valor que pusiste en `VITE_SPLASH_TOKEN_CONTRACT_ID` en el paso 7.
+3. Busca la opción para agregarlo **manualmente por contrato** (en vez de buscar por código/emisor, que es el flujo de activos clásicos) y pega ahí el `CONTRACT_ID` de tu `workshop_token` — el mismo valor que pusiste en `VITE_TOKEN_CONTRACT_ID` en el paso 7.
 4. Freighter consulta `name`, `symbol` y `decimals` directamente del contrato, lo agrega a tu lista de activos y te muestra tu balance real.
 
 Lo único que pagas es la comisión de red normal de la transacción que estés haciendo (mint, transfer, swap) — no hay ninguna reserva extra ni pago por "admitir" el token, a diferencia de un activo clásico con trustline.
@@ -271,10 +271,10 @@ pnpm run test:contracts
 
 ## Solución de problemas comunes
 
-- **`❌ Transacción ... falló en la red` al presionar Mint**: casi siempre significa que la wallet conectada en Freighter no es la identidad admin de tu `splash_token` (la que corrió `initialize.sh` en el paso 5). Solo el admin puede mintear (`require_auth` en el contrato lo exige). Revisa el paso 6 — importa la clave secreta de tu identidad (`stellar keys show mi-alias`) en Freighter y conéctate con esa cuenta.
+- **`❌ Transacción ... falló en la red` al presionar Mint**: casi siempre significa que la wallet conectada en Freighter no es la identidad admin de tu `workshop_token` (la que corrió `initialize.sh` en el paso 5). Solo el admin puede mintear (`require_auth` en el contrato lo exige). Revisa el paso 6 — importa la clave secreta de tu identidad (`stellar keys show mi-alias`) en Freighter y conéctate con esa cuenta.
 - **`error: target 'wasm32v1-none' not found` o similar al compilar**: falta el target de Rust. Corre `rustup target add wasm32v1-none`.
 - **`stellar: command not found`** tras instalarlo: asegúrate de que `~/.cargo/bin` esté en tu `PATH` (`source "$HOME/.cargo/env"`) y abre una terminal nueva.
 - **`pnpm: command not found`**: corre `corepack enable` (viene con Node 16.9+); si sigue sin aparecer, `npm i -g pnpm`.
 - **Freighter no aparece / el frontend no detecta la wallet**: confirma que la extensión esté instalada, desbloqueada, y en red **Testnet** (no Mainnet ni Futurenet).
-- **`Falta VITE_SPLASH_TOKEN_CONTRACT_ID en tu .env`**: te faltó completar `frontend/.env` con los `CONTRACT_ID` del paso 5 (ver paso 7).
+- **`Falta VITE_TOKEN_CONTRACT_ID en tu .env`**: te faltó completar `frontend/.env` con los `CONTRACT_ID` del paso 5 (ver paso 7).
 - **En Windows, comandos que fallan de formas raras (paths, permisos, compilación de Rust)**: usa WSL2 en vez de PowerShell/CMD — ver la sección de Requisitos.

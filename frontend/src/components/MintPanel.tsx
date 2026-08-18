@@ -47,11 +47,18 @@ export function MintPanel({ wallet }: Props) {
 
       {missingContract ? (
         <p className="warn">
-          Falta <code>VITE_SPLASH_TOKEN_CONTRACT_ID</code> en tu <code>.env</code>. Despliega tu
+          Falta <code>VITE_TOKEN_CONTRACT_ID</code> en tu <code>.env</code>. Despliega tu
           contrato con <code>pnpm run deploy:testnet</code> y pega el CONTRACT_ID (Commit 2).
         </p>
       ) : (
         <>
+          <p className="small">
+            Cuando configuraste tu token por primera vez ya recibiste en tu wallet admin todo el
+            suministro inicial de {tokenConfig.symbol}, y una parte quedó como liquidez del pool.
+            Este botón es opcional: acuña <strong>{tokenConfig.symbol} extra</strong> por si quieres
+            seguir probando swaps o repartir a otra wallet. Solo funciona si estás conectado con la
+            wallet admin de tu token — con cualquier otra cuenta no se puede mintear.
+          </p>
           <label>
             Cantidad
             <input

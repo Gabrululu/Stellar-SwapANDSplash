@@ -39,7 +39,7 @@ impl TokenRegistry {
     }
 
     /// Registra un token nuevo junto con el pool donde se puede
-    /// intercambiar (SplashToken/XLM). Solo el `owner` firmante
+    /// intercambiar (Token/XLM). Solo el `owner` firmante
     /// puede registrar su propio contrato (evita que alguien más
     /// registre tokens ajenos a su nombre).
     pub fn register(

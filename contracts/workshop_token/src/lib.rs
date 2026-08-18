@@ -27,10 +27,10 @@ pub enum DataKey {
 }
 
 #[contract]
-pub struct SplashToken;
+pub struct WorkshopToken;
 
 #[contractimpl]
-impl SplashToken {
+impl WorkshopToken {
     /// Inicializa el contrato: fija al admin y le acuña el
     /// suministro inicial completo. Solo se puede llamar una vez.
     pub fn initialize(env: Env, admin: Address) {

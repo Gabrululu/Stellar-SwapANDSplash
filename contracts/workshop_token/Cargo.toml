@@ -1,5 +1,5 @@
 [package]
-name = "splash_token"
+name = "workshop_token"
 version = "0.1.0"
 edition = "2021"
 publish = false

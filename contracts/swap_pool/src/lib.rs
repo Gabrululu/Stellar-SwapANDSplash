@@ -2,9 +2,9 @@
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, IntoVal, Symbol, Vec};
 
 // Pool de liquidez de producto constante (x*y=k) genérico entre
-// dos tokens SEP-41 compatibles (funciona tanto con splash_token
-// como con el XLM nativo vía su Stellar Asset Contract). Cada
-// par SplashToken/XLM del taller despliega su propia instancia de
+// dos tokens SEP-41 compatibles (funciona tanto con el token del
+// taller como con el XLM nativo vía su Stellar Asset Contract).
+// Cada par Token/XLM del taller despliega su propia instancia de
 // este contrato.
 
 #[contracttype]

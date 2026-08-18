@@ -12,7 +12,7 @@ soroban-sdk = { workspace = true }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
-splash_token = { path = "../splash_token" }
+workshop_token = { path = "../workshop_token" }
 
 [features]
 testutils = ["soroban-sdk/testutils"]
