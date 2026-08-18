@@ -50,6 +50,7 @@ Si nunca tocaste Stellar, estos son los términos que vas a ver todo el taller:
 | **Deploy (desplegar)** | Publicar el contrato compilado en la red para que quede disponible con su propio CONTRACT_ID. |
 | **Mint (acuñar)** | Crear unidades nuevas del token y asignárselas a una cuenta. Solo puede hacerlo el `admin` del contrato. |
 | **Swap** | Intercambiar un token por otro a través de un pool de liquidez. |
+| **Trustline** | Mecanismo de los **activos clásicos** de Stellar (no de Soroban): para poder tener un activo así en tu cuenta primero tienes que "confiar" en él, y eso bloquea una reserva mínima de XLM. Nuestro `splash_token` **no** usa trustlines — ver la sección [Ver tu token en Freighter](#ver-tu-token-en-freighter). |
 
 ### Recursos útiles
 
@@ -244,6 +245,23 @@ Con Freighter instalado, en red **Testnet**, y con la cuenta importada en el pas
 2. Acuñar el token propio.
 3. Registrarlo en el mini DEX compartido para que aparezca en el tablero de toda la sala.
 4. Elegir el token de algún otro participante en el tablero y realizar un swap: la operación se ejecuta contra **el pool de esa persona** (cada quien tiene su propio pool SplashToken/XLM), así que estás intercambiando XLM por su token directamente.
+
+## Ver tu token en Freighter
+
+El frontend ya te muestra tu balance de SPLASH, pero si además quieres verlo directamente **dentro de Freighter** (por ejemplo para confirmarlo tras un mint o un swap), hay que agregarlo a mano: a diferencia de XLM, Freighter no lo detecta solo.
+
+**¿Por qué no hay que pagar ninguna "cuota" para agregarlo?** En Stellar existen dos tipos de activos, con reglas distintas:
+
+- **Activos clásicos** (los emitidos con `código + cuenta emisora`, ej. la mayoría de stablecoins en la red): para poder tenerlos en tu cuenta primero necesitas abrir una **trustline** (`change_trust`). Mientras esa trustline exista, Stellar bloquea una **reserva mínima de ~0.5 XLM** en tu cuenta — esa es la "cuota" de la que probablemente escuchaste hablar en el ecosistema Stellar en general.
+- **Tokens Soroban** como nuestro `splash_token`: no son un activo clásico, son un contrato inteligente que implementa las funciones de un token (`balance`, `transfer`, etc.). Tu saldo vive en el *storage* del contrato, no en una trustline de tu cuenta. Por eso **no hace falta abrir trustline ni reservar XLM** para "admitirlo" — solo hay que decirle a Freighter que muestre ese contrato.
+
+**Cómo agregarlo:**
+1. Abre Freighter y confirma que la red activa sea **Testnet**.
+2. Ve al listado de activos → botón de administrar/agregar activo (**"Manage assets" → "Add an asset"**, el nombre exacto puede variar un poco según la versión de la extensión).
+3. Busca la opción para agregarlo **manualmente por contrato** (en vez de buscar por código/emisor, que es el flujo de activos clásicos) y pega ahí el `CONTRACT_ID` de tu `splash_token` — el mismo valor que pusiste en `VITE_SPLASH_TOKEN_CONTRACT_ID` en el paso 7.
+4. Freighter consulta `name`, `symbol` y `decimals` directamente del contrato, lo agrega a tu lista de activos y te muestra tu balance real.
+
+Lo único que pagas es la comisión de red normal de la transacción que estés haciendo (mint, transfer, swap) — no hay ninguna reserva extra ni pago por "admitir" el token, a diferencia de un activo clásico con trustline.
 
 ## Tests de los contratos
 
