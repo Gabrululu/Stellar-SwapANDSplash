@@ -78,7 +78,7 @@ source "$HOME/.cargo/env"
 rustup target add wasm32v1-none
 
 # Stellar CLI (tarda varios minutos en compilar)
-cargo install --locked stellar-cli
+cargo install --locked stellar-cli --no-default-features
 ```
 </details>
 
@@ -98,7 +98,7 @@ source "$HOME/.cargo/env"
 rustup target add wasm32v1-none
 
 # Stellar CLI (tarda varios minutos en compilar)
-cargo install --locked stellar-cli
+cargo install --locked stellar-cli --no-default-features
 ```
 </details>
 
